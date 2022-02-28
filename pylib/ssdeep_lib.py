@@ -368,47 +368,47 @@ from sklearn.cluster import OPTICS
 from sklearn.cluster import Birch
 
 def sim_affinity(tdata):
-	return pairwise_distances(tdata, metric=sim)
+	return pairwise_distances(tdata, metric=simSsdeep)
 
 def assignCluster(hashList, n_clusters):
-	data = tlist2cdata(hashList)
+	data = slist2cdata(hashList)
 	cluster = AgglomerativeClustering(n_clusters=n_clusters, affinity=sim_affinity, linkage='average')
 	res = cluster.fit(data)
 	return(res)
 
 def runKMean(hashList, n_clusters):
-	data = tlist2cdata(hashList)
+	data = slist2cdata(hashList)
 	cluster = KMeans(n_clusters=n_clusters, random_state=0)
 	res = cluster.fit(data)
 	return(res)
 
 def runAffinityPropagation(hashList,n):
-	data = tlist2cdata(hashList)
+	data = slist2cdata(hashList)
 	cluster = AffinityPropagation(affinity=sim_affinity,random_state=n)
 	res = cluster.fit(data)
 	return(res)
 
 def runMeanShift(hashList, n):
-	data = tlist2cdata(hashList)
+	data = slist2cdata(hashList)
 	cluster = MeanShift(bandwidth=n)
 	res = cluster.fit(data)
 	return(res)
 
 def runSpectral(hashList, n_clusters):
-	data = tlist2cdata(hashList)
+	data = slist2cdata(hashList)
 	cluster = SpectralClustering(n_clusters=n_clusters, assign_labels='discretize', random_state=0)
 	res = cluster.fit(data)
 	return(res)
 
 def runOPTICS(hashList,min_samples):
-	data = tlist2cdata(hashList)
-	cluster = OPTICS(min_samples=min_samples,metric=sim)
+	data = slist2cdata(hashList)
+	cluster = OPTICS(min_samples=min_samples,metric=simSsdeep)
 	res = cluster.fit(data)
 	return(res)
 
 def runBIRCH(hashList,n):
-	data = tlist2cdata(hashList)
-	cluster = Birch(n_clusters=n)
+	data = slist2cdata(hashList)
+	cluster = Birch(n_clusters=n,metric=simSsdeep)
 	res = cluster.fit(data)
 	return(res)
 
@@ -438,8 +438,8 @@ def selectCluster(tlist, clusterNumber, clusterIdx, labelList=None):
 from sklearn.cluster import DBSCAN
 
 def runDBSCAN(hashList, eps, min_samples, algorithm='auto'):
-	data = tlist2cdata(hashList)
-	res = DBSCAN(eps=eps, min_samples=min_samples, metric=sim, algorithm=algorithm).fit(data)
+	data = slist2cdata(hashList)
+	res = DBSCAN(eps=eps, min_samples=min_samples, metric=simSsdeep, algorithm=algorithm).fit(data)
 	return(res)
 # print(res)
 
