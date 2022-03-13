@@ -3,6 +3,9 @@ from pylib.ssdeep_lib import *
 import numpy as np
 import pandas as pd
 import time
+import argparse
+import sys
+
 
 ###################################################
 # List of Function
@@ -11,6 +14,7 @@ def containNan(labelList):
         if lable == 'n/a':
             haveNan = True
             return haveNan
+
 
 def removeNan(hashlist, labelList):
     count = -1
@@ -23,6 +27,7 @@ def removeNan(hashlist, labelList):
             newhashlist.append(hashlist[count])
             newlabelList.append(labelList[count])
     return newhashlist, newlabelList
+
 
 def getResult(hashType, clusterType, labelList, clusterNumber):
     d = {word: key for key, word in enumerate(set(labelList))}
@@ -37,10 +42,10 @@ def getResult(hashType, clusterType, labelList, clusterNumber):
     cali = round(metrics.calinski_harabasz_score(a, clusterNumber), dp)
     dav = round(metrics.davies_bouldin_score(a, clusterNumber), dp)
 
-    print("Homogeneity score is " + str(homo))
-    print("Silhouette score is " + str(silh))
-    print("Calinski harabasz score is " + str(cali))
-    print("Davies bouldin score is " + str(dav))
+    # print("Homogeneity score is " + str(homo))
+    # print("Silhouette score is " + str(silh))
+    # print("Calinski harabasz score is " + str(cali))
+    # print("Davies bouldin score is " + str(dav))
 
     result = {"File": str(filename),
               "nSample": int(len(tlist)),
@@ -56,22 +61,35 @@ def getResult(hashType, clusterType, labelList, clusterNumber):
               "Dav.": float(dav)}
     return result
 
+
+###################################################
+# start of main program
 ###################################################
 
-tic = time.perf_counter() # experiment time counter
+parser = argparse.ArgumentParser(prog='readcsv')  # provides a convenient interface to handle command-line arguments.
+parser.add_argument('-f', help='fname', type=str, default="")  # the extra part need to run file
+args = parser.parse_args()
+datafile = args.f
+### datafile = "dataDir/mb_1K.csv" #<-----Change this file size
+if (datafile == ""):
+    print("you must provide a datafile name (-f)\n")
+    sys.exit()
+# end if
+
+###################################################
+
+tic = time.perf_counter()  # experiment time counter
 haveNan = False
 df = pd.DataFrame()
 
-datafile = "dataDir/mb_100.csv" #<-----Change this file size
+(path, file) = datafile.split("/")  # save file path
+(filename, filetype) = file.split(".")  # save file type
 
-(path,file) = datafile.split("/") #save file path
-(filename,filetype) = file.split(".") #save file type
+(tlist, [labelList, dateList, slist]) = tlsh_csvfile(datafile)  # return (tlist, [labelList, dateList, hashList])
+# (tlist, labelList) = tlsh_csvfile(datafile)
 
-(tlist, [labelList, dateList, slist]) = tlsh_csvfile(datafile) # return (tlist, [labelList, dateList, hashList])
-#(tlist, labelList) = tlsh_csvfile(datafile)
-
-#remove Nan Value
-#(tlist, labelList) = removeNan(tlist, labelList)
+# remove Nan Value
+# (tlist, labelList) = removeNan(tlist, labelList)
 
 hashList = slist
 print("Number of samples is " + str(len(hashList)))
@@ -80,20 +98,19 @@ print(hashList[0:10])
 nlable = len(set(labelList))
 haveNan = containNan(labelList)
 
-
 ###################################################
-#Agglomerative Clustering
+# Agglomerative Clustering
 start = time.perf_counter()
 res = assignCluster(hashList, nlable)
-end = round(time.perf_counter() - start,4)
+end = round(time.perf_counter() - start, 4)
+
+dict = getResult("ssdeep", "hac", labelList, res.labels_)
+df = df.append(dict, ignore_index=True)
+print(dict.get('Cluster'))
 print("Code ran in " + str(end) + " seconds")
 
-dict = getResult("ssdeep","hac",labelList,res.labels_)
-df = df.append(dict, ignore_index = True)
-print(df)
-
-#outfile = path + "/output/" + filename + "_hac_out.txt"
-#outputClusters(outfile, hashList, clusterNumber, labelList, quiet=True)
+# outfile = path + "/output/" + filename + "_hac_out.txt"
+# outputClusters(outfile, hashList, clusterNumber, labelList, quiet=True)
 
 """
 ###################################################
@@ -105,16 +122,16 @@ hac_resetDistCalc()
 start = time.perf_counter()
 res = HAC_T(datafile, CDist=30, step3=0, outfname="tmp.txt", cenfname="tmp2.txt")
 end = round(time.perf_counter() - start,4)
+
+dict = getResult("ssdeep","hac-t",labelList,res)
+df = df.append(dict, ignore_index = True)
+print(dict.get('Cluster'))
 print("Code ran in " + str(end) + " seconds")
 
 nclusters = max(res)
 nDistCalc = hac_lookupDistCalc()
-print("Number of cluster is " + str(nclusters))
-print("Number of Distance Calculated is " + str(nDistCalc))
-
-dict = getResult("ssdeep","hac-t",labelList,res)
-df = df.append(dict, ignore_index = True)
-print(df)
+print("nclusters is " + str(nclusters))
+print("nDistCalc is " + str(nDistCalc))
 
 #outfile = path + "/output/" + filename + "_hac-t_out.txt"
 #outputClusters(outfile, hashList, res, labelList, quiet=True)
@@ -126,7 +143,11 @@ resetDistCalc()
 
 start = time.perf_counter()
 res = runDBSCAN(hashList, eps=30, min_samples=2, algorithm='auto')
-end = round(time.perf_counter() - start,4)
+end = round(time.perf_counter() - start, 4)
+
+dict = getResult("ssdeep", "dbscan", labelList, res.labels_)
+df = df.append(dict, ignore_index=True)
+print(dict.get('Cluster'))
 print("Code ran in " + str(end) + " seconds")
 
 nclusters = max(res.labels_)
@@ -134,27 +155,23 @@ nDistCalc = lookupDistCalc()
 print("nclusters is " + str(nclusters))
 print("nDistCalc is " + str(nDistCalc))
 
-dict = getResult("ssdeep","dbscan",labelList,res.labels_)
-df = df.append(dict, ignore_index = True)
-print(df)
-
-#outfile = path + "/output/" + filename + "_dbscan_out.txt"
-#outputClusters(outfile, hashList, res.labels_, labelList, quiet=True)
+# outfile = path + "/output/" + filename + "_dbscan_out.txt"
+# outputClusters(outfile, hashList, res.labels_, labelList, quiet=True)
 
 ###################################################
 # KMeans
 
 start = time.perf_counter()
 res = runKMean(hashList, nlable)
-end = round(time.perf_counter() - start,4)
+end = round(time.perf_counter() - start, 4)
+
+dict = getResult("ssdeep", "kmeans", labelList, res.labels_)
+df = df.append(dict, ignore_index=True)
+print(dict.get('Cluster'))
 print("Code ran in " + str(end) + " seconds")
 
-dict = getResult("ssdeep","kmeans",labelList,res.labels_)
-df = df.append(dict, ignore_index = True)
-print(df)
-
-#outfile = path + "/output/" + filename + "_kmean_out.txt"
-#outputClusters(outfile, hashList, res.labels_, labelList)
+# outfile = path + "/output/" + filename + "_kmean_out.txt"
+# outputClusters(outfile, hashList, res.labels_, labelList)
 
 ###################################################
 # Affinity Propagation
@@ -162,64 +179,65 @@ print(df)
 start = time.perf_counter()
 res = runAffinityPropagation(hashList,5)
 end = round(time.perf_counter() - start,4)
-print("Code ran in " + str(end) + " seconds")
 
 dict = getResult("ssdeep","ap",labelList,res.labels_)
 df = df.append(dict, ignore_index = True)
-print(df)
+print(dict.get('Cluster'))
+print("Code ran in " + str(end) + " seconds")
 """
 ###################################################
 # Mean Shift
 
 start = time.perf_counter()
-res = runMeanShift(hashList,5)
-end = round(time.perf_counter() - start,4)
-print("Code ran in " + str(end) + " seconds")
+res = runMeanShift(hashList, 5)
+end = round(time.perf_counter() - start, 4)
 
-dict = getResult("ssdeep","ms",labelList,res.labels_)
-df = df.append(dict, ignore_index = True)
-print(df)
+dict = getResult("ssdeep", "ms", labelList, res.labels_)
+df = df.append(dict, ignore_index=True)
+print(dict.get('Cluster'))
+print("Code ran in " + str(end) + " seconds")
 
 ###################################################
 # Spectral Clustering
 
 start = time.perf_counter()
-res = runMeanShift(hashList,5)
-end = round(time.perf_counter() - start,4)
-print("Code ran in " + str(end) + " seconds")
+res = runMeanShift(hashList, 5)
+end = round(time.perf_counter() - start, 4)
 
-dict = getResult("ssdeep","sp",labelList,res.labels_)
-df = df.append(dict, ignore_index = True)
-print(df)
+dict = getResult("ssdeep", "sp", labelList, res.labels_)
+df = df.append(dict, ignore_index=True)
+print(dict.get('Cluster'))
+print("Code ran in " + str(end) + " seconds")
 
 ###################################################
 # OPTICS
 
 start = time.perf_counter()
-res = runOPTICS(hashList,2)
-end = round(time.perf_counter() - start,4)
-print("Code ran in " + str(end) + " seconds")
+res = runOPTICS(hashList, 2)
+end = round(time.perf_counter() - start, 4)
 
-dict = getResult("ssdeep","OPTICS",labelList,res.labels_)
-df = df.append(dict, ignore_index = True)
-print(df)
+dict = getResult("ssdeep", "OPTICS", labelList, res.labels_)
+df = df.append(dict, ignore_index=True)
+print(dict.get('Cluster'))
+print("Code ran in " + str(end) + " seconds")
 
 ###################################################
 # BIRCH
 
 start = time.perf_counter()
-res = runBIRCH(hashList,2)
-end = round(time.perf_counter() - start,4)
-print("Code in " + str(end) + " seconds")
+res = runBIRCH(hashList, 2)
+end = round(time.perf_counter() - start, 4)
 
-dict = getResult("ssdeep","BIRCH",labelList,res.labels_)
-df = df.append(dict, ignore_index = True)
-print(df)
+dict = getResult("ssdeep", "BIRCH", labelList, res.labels_)
+df = df.append(dict, ignore_index=True)
+print(dict.get('Cluster'))
+print("Code ran in " + str(end) + " seconds")
 
 ###################################################
 # Output
-#outfile = path + "/output/" + filename + "_result.csv"
-#df.to_csv(outfile, index = False)
+outfile = path + "/output/" + filename + "_Ssdeep_result.csv"
+df.to_csv(outfile, index=False)
 
-toc = round(time.perf_counter() - tic,4)
+toc = round(time.perf_counter() - tic, 4)
+print(df)
 print("All code ran in " + str(toc) + " seconds")

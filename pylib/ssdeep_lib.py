@@ -382,15 +382,15 @@ def runKMean(hashList, n_clusters):
 	res = cluster.fit(data)
 	return(res)
 
-def runAffinityPropagation(hashList,n):
+def runAffinityPropagation(hashList,random_state):
 	data = slist2cdata(hashList)
-	cluster = AffinityPropagation(affinity=sim_affinity,random_state=n)
+	cluster = AffinityPropagation(affinity=sim_affinity,random_state=random_state)
 	res = cluster.fit(data)
 	return(res)
 
-def runMeanShift(hashList, n):
+def runMeanShift(hashList, bandwidth):
 	data = slist2cdata(hashList)
-	cluster = MeanShift(bandwidth=n)
+	cluster = MeanShift(bandwidth=bandwidth)
 	res = cluster.fit(data)
 	return(res)
 
@@ -406,9 +406,9 @@ def runOPTICS(hashList,min_samples):
 	res = cluster.fit(data)
 	return(res)
 
-def runBIRCH(hashList,n):
+def runBIRCH(hashList,n_clusters):
 	data = slist2cdata(hashList)
-	cluster = Birch(n_clusters=n,metric=simSsdeep)
+	cluster = Birch(n_clusters=n_clusters,metric=simSsdeep)
 	res = cluster.fit(data)
 	return(res)
 
