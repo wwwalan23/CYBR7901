@@ -112,8 +112,8 @@ try:
     print(dict.get('Cluster'))
     print("Code ran in " + str(end) + " seconds")
 
-    outfile = path + "/output/" + filename + "_hac_out.txt"
-    outputClusters(outfile, hashList, res.labels_, labelList, quiet=True)
+    #outfile = path + "/output/" + filename + "_hac_out.txt"
+    #outputClusters(outfile, hashList, res.labels_, labelList, quiet=True)
 except Exception as e:
     print("Agglomerative Clustering didn't work.")
     print(e)
