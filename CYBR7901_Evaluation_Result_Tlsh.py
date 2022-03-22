@@ -1,10 +1,12 @@
-from sklearn import metrics
-from pylib.tlsh_lib import *
-import numpy as np
-import pandas as pd
-import time
 import argparse
 import sys
+import time
+
+import pandas as pd
+from sklearn import metrics
+import numpy as np
+
+from pylib.tlsh_lib import *
 
 
 ###################################################
@@ -52,7 +54,7 @@ def getResult(hashType, clusterType, labelList, clusterNumber):
               "Hash": str(hashType),
               "Cluster": str(clusterType),
               "Has_n/a": bool(haveNan),
-              "nLabel": int(nlable),
+              "nLabel": int(nlabel),
               "nCluster": int(max(clusterNumber)),
               "Time(s)": float(end),
               "Homo.": float(homo),
@@ -93,148 +95,186 @@ df = pd.DataFrame()
 
 hashList = tlist
 print("Number of samples is " + str(len(hashList)))
-print("Number of Unique Lable is " + str(len(set(labelList))))
+print("Number of Unique Label is " + str(len(set(labelList))))
 print(hashList[0:10])
-nlable = len(set(labelList))
+nlabel = len(set(labelList))
 haveNan = containNan(labelList)
 
 ###################################################
 # Agglomerative Clustering
 try:
-	start = time.perf_counter()
-	res = assignCluster(hashList, nlable)
-	end = round(time.perf_counter() - start, 4)
+    start = time.perf_counter()
+    res = assignCluster(hashList, nlabel)
+    end = round(time.perf_counter() - start, 4)
 
-	dict = getResult("tlsh", "hac", labelList, res.labels_)
-	df = df.append(dict, ignore_index=True)
-	print(dict.get('Cluster'))
-	print("Code ran in " + str(end) + " seconds")
-except:
-	print("This don't work")
-# outfile = path + "/output/" + filename + "_hac_out.txt"
-# outputClusters(outfile, hashList, clusterNumber, labelList, quiet=True)
+    dict = getResult("tlsh", "ac", labelList, res.labels_)
+    df = df.append(dict, ignore_index=True)
+    print(dict.get('Cluster'))
+    print("Code ran in " + str(end) + " seconds")
+
+    outfile = path + "/output/" + filename + "_hac_out.txt"
+    outputClusters(outfile, hashList, res.labels_, labelList, quiet=True)
+except Exception as e:
+    print("Agglomerative Clustering didn't work.")
+    print(e)
 
 ###################################################
 # HAC-T
 from pylib.hac_lib import *
 
-hac_resetDistCalc()
+try:
+    hac_resetDistCalc()
 
-start = time.perf_counter()
-res = HAC_T(datafile, CDist=30, step3=0, outfname="tmp.txt", cenfname="tmp2.txt")
-end = round(time.perf_counter() - start, 4)
+    start = time.perf_counter()
+    res = HAC_T(datafile, CDist=30, step3=0, outfname="tmp.txt", cenfname="tmp2.txt")
+    end = round(time.perf_counter() - start, 4)
 
-dict = getResult("tlsh", "hac-t", labelList, res)
-df = df.append(dict, ignore_index=True)
-print(dict.get('Cluster'))
-print("Code ran in " + str(end) + " seconds")
+    dict = getResult("tlsh", "hac-t", labelList, res)
+    df = df.append(dict, ignore_index=True)
+    print(dict.get('Cluster'))
+    print("Code ran in " + str(end) + " seconds")
 
-nclusters = max(res)
-nDistCalc = hac_lookupDistCalc()
-print("nclusters is " + str(nclusters))
-print("nDistCalc is " + str(nDistCalc))
+    nclusters = max(res)
+    nDistCalc = hac_lookupDistCalc()
+    print("nclusters is " + str(nclusters))
+    print("nDistCalc is " + str(nDistCalc))
 
-# outfile = path + "/output/" + filename + "_hac-t_out.txt"
-# outputClusters(outfile, hashList, res, labelList, quiet=True)
+    # outfile = path + "/output/" + filename + "_hac-t_out.txt"
+    # outputClusters(outfile, hashList, res, labelList, quiet=True)
+except Exception as e:
+    print("HAC-T didn't work.")
+    print(e)
 
 ###################################################
 # DBSCAN
 from pylib.hac_lib import *
 
-resetDistCalc()
+try:
+    resetDistCalc()
 
-start = time.perf_counter()
-res = runDBSCAN(hashList, eps=30, min_samples=2, algorithm='auto')
-end = round(time.perf_counter() - start, 4)
+    start = time.perf_counter()
+    res = runDBSCAN(hashList, eps=30, min_samples=2, algorithm='auto')
+    end = round(time.perf_counter() - start, 4)
 
-dict = getResult("tlsh", "dbscan", labelList, res.labels_)
-df = df.append(dict, ignore_index=True)
-print(dict.get('Cluster'))
-print("Code ran in " + str(end) + " seconds")
+    dict = getResult("tlsh", "dbscan", labelList, res.labels_)
+    df = df.append(dict, ignore_index=True)
+    print(dict.get('Cluster'))
+    print("Code ran in " + str(end) + " seconds")
 
-nclusters = max(res.labels_)
-nDistCalc = lookupDistCalc()
-print("nclusters is " + str(nclusters))
-print("nDistCalc is " + str(nDistCalc))
+    nclusters = max(res.labels_)
+    nDistCalc = lookupDistCalc()
+    print("nclusters is " + str(nclusters))
+    print("nDistCalc is " + str(nDistCalc))
 
-# outfile = path + "/output/" + filename + "_dbscan_out.txt"
-# outputClusters(outfile, hashList, res.labels_, labelList, quiet=True)
+    # outfile = path + "/output/" + filename + "_dbscan_out.txt"
+    # outputClusters(outfile, hashList, res.labels_, labelList, quiet=True)
+except Exception as e:
+    print("DBSCAN didn't work.")
+    print(e)
 
 ###################################################
 # KMeans
+try:
+    start = time.perf_counter()
+    res = runKMean(hashList, n_clusters=nlabel)
+    end = round(time.perf_counter() - start, 4)
 
-start = time.perf_counter()
-res = runKMean(hashList, nlable)
-end = round(time.perf_counter() - start, 4)
+    dict = getResult("tlsh", "kmeans", labelList, res.labels_)
+    df = df.append(dict, ignore_index=True)
+    print(dict.get('Cluster'))
+    print("Code ran in " + str(end) + " seconds")
 
-dict = getResult("tlsh", "kmeans", labelList, res.labels_)
-df = df.append(dict, ignore_index=True)
-print(dict.get('Cluster'))
-print("Code ran in " + str(end) + " seconds")
-
-# outfile = path + "/output/" + filename + "_kmean_out.txt"
-# outputClusters(outfile, hashList, res.labels_, labelList)
+    # outfile = path + "/output/" + filename + "_kmean_out.txt"
+    # outputClusters(outfile, hashList, res.labels_, labelList)
+except Exception as e:
+    print("KMean didn't work.")
+    print(e)
 
 ###################################################
 # Affinity Propagation
-"""
-start = time.perf_counter()
-res = runAffinityPropagation(hashList, 5)
-end = round(time.perf_counter() - start, 4)
+try:
+    start = time.perf_counter()
+    res = runAffinityPropagation(hashList, random_state=5)
+    end = round(time.perf_counter() - start, 4)
 
-dict = getResult("tlsh", "ap", labelList, res.labels_)
-df = df.append(dict, ignore_index=True)
-print(dict.get('Cluster'))
-print("Code ran in " + str(end) + " seconds")
-"""
+    dict = getResult("tlsh", "ap", labelList, res.labels_)
+    df = df.append(dict, ignore_index=True)
+    print(dict.get('Cluster'))
+    print("Code ran in " + str(end) + " seconds")
+
+    # outfile = path + "/output/" + filename + "_ap_out.txt"
+    # outputClusters(outfile, hashList, res.labels_, labelList)
+except Exception as e:
+    print("Affinity Propagation didn't work.")
+    print(e)
 ###################################################
 # Mean Shift
+try:
+    start = time.perf_counter()
+    res = runMeanShift(hashList, bandwidth=5)
+    end = round(time.perf_counter() - start, 4)
 
-start = time.perf_counter()
-res = runMeanShift(hashList, 5)
-end = round(time.perf_counter() - start, 4)
+    dict = getResult("tlsh", "ms", labelList, res.labels_)
+    df = df.append(dict, ignore_index=True)
+    print(dict.get('Cluster'))
+    print("Code ran in " + str(end) + " seconds")
 
-dict = getResult("tlsh", "ms", labelList, res.labels_)
-df = df.append(dict, ignore_index=True)
-print(dict.get('Cluster'))
-print("Code ran in " + str(end) + " seconds")
-
+    # outfile = path + "/output/" + filename + "_ms_out.txt"
+    # outputClusters(outfile, hashList, res.labels_, labelList)
+except Exception as e:
+    print("Mean Shift didn't work.")
+    print(e)
 ###################################################
 # Spectral Clustering
+try:
+    start = time.perf_counter()
+    res = runSpectral(hashList, n_clusters=nlabel)
+    end = round(time.perf_counter() - start, 4)
 
-start = time.perf_counter()
-res = runMeanShift(hashList, 5)
-end = round(time.perf_counter() - start, 4)
+    dict = getResult("tlsh", "sp", labelList, res.labels_)
+    df = df.append(dict, ignore_index=True)
+    print(dict.get('Cluster'))
+    print("Code ran in " + str(end) + " seconds")
 
-dict = getResult("tlsh", "sp", labelList, res.labels_)
-df = df.append(dict, ignore_index=True)
-print(dict.get('Cluster'))
-print("Code ran in " + str(end) + " seconds")
-
+    # outfile = path + "/output/" + filename + "_sp_out.txt"
+    # outputClusters(outfile, hashList, res.labels_, labelList)
+except Exception as e:
+    print("Spectral Clustering didn't work.")
+    print(e)
 ###################################################
 # OPTICS
+try:
+    start = time.perf_counter()
+    res = runOPTICS(hashList, min_samples=2)
+    end = round(time.perf_counter() - start, 4)
 
-start = time.perf_counter()
-res = runOPTICS(hashList, 2)
-end = round(time.perf_counter() - start, 4)
+    dict = getResult("tlsh", "OPTICS", labelList, res.labels_)
+    df = df.append(dict, ignore_index=True)
+    print(dict.get('Cluster'))
+    print("Code ran in " + str(end) + " seconds")
 
-dict = getResult("tlsh", "OPTICS", labelList, res.labels_)
-df = df.append(dict, ignore_index=True)
-print(dict.get('Cluster'))
-print("Code ran in " + str(end) + " seconds")
-
+    # outfile = path + "/output/" + filename + "_optics_out.txt"
+    # outputClusters(outfile, hashList, res.labels_, labelList)
+except Exception as e:
+    print("OPTICS didn't work.")
+    print(e)
 ###################################################
 # BIRCH
+try:
+    start = time.perf_counter()
+    res = runBIRCH(hashList, n_clusters=nlabel)
+    end = round(time.perf_counter() - start, 4)
 
-start = time.perf_counter()
-res = runBIRCH(hashList, 2)
-end = round(time.perf_counter() - start, 4)
+    dict = getResult("tlsh", "BIRCH", labelList, res.labels_)
+    df = df.append(dict, ignore_index=True)
+    print(dict.get('Cluster'))
+    print("Code ran in " + str(end) + " seconds")
 
-dict = getResult("tlsh", "BIRCH", labelList, res.labels_)
-df = df.append(dict, ignore_index=True)
-print(dict.get('Cluster'))
-print("Code ran in " + str(end) + " seconds")
-
+    # outfile = path + "/output/" + filename + "_birch_out.txt"
+    # outputClusters(outfile, hashList, res.labels_, labelList)
+except Exception as e:
+    print("BIRCH didn't work.")
+    print(e)
 ###################################################
 # Output
 outfile = path + "/output/" + filename + "_Tlsh_result.csv"
