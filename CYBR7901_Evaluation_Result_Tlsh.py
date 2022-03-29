@@ -7,7 +7,8 @@ from sklearn import metrics
 import numpy as np
 
 from pylib.tlsh_lib import *
-
+import warnings
+warnings.filterwarnings("ignore")
 
 ###################################################
 # List of Function
@@ -108,7 +109,7 @@ try:
     end = round(time.perf_counter() - start, 4)
 
     dict = getResult("tlsh", "ac", labelList, res.labels_)
-    df = df.append(dict, ignore_index=True)
+    df = pd.concat((df, pd.DataFrame([dict])), ignore_index=True)
     print(dict.get('Cluster'))
     print("Code ran in " + str(end) + " seconds")
 
@@ -130,7 +131,7 @@ try:
     end = round(time.perf_counter() - start, 4)
 
     dict = getResult("tlsh", "hac-t", labelList, res)
-    df = df.append(dict, ignore_index=True)
+    df = pd.concat((df, pd.DataFrame([dict])), ignore_index=True)
     print(dict.get('Cluster'))
     print("Code ran in " + str(end) + " seconds")
 
@@ -157,7 +158,7 @@ try:
     end = round(time.perf_counter() - start, 4)
 
     dict = getResult("tlsh", "dbscan", labelList, res.labels_)
-    df = df.append(dict, ignore_index=True)
+    df = pd.concat((df, pd.DataFrame([dict])), ignore_index=True)
     print(dict.get('Cluster'))
     print("Code ran in " + str(end) + " seconds")
 
@@ -180,7 +181,7 @@ try:
     end = round(time.perf_counter() - start, 4)
 
     dict = getResult("tlsh", "kmeans", labelList, res.labels_)
-    df = df.append(dict, ignore_index=True)
+    df = pd.concat((df, pd.DataFrame([dict])), ignore_index=True)
     print(dict.get('Cluster'))
     print("Code ran in " + str(end) + " seconds")
 
@@ -198,7 +199,7 @@ try:
     end = round(time.perf_counter() - start, 4)
 
     dict = getResult("tlsh", "ap", labelList, res.labels_)
-    df = df.append(dict, ignore_index=True)
+    df = pd.concat((df, pd.DataFrame([dict])), ignore_index=True)
     print(dict.get('Cluster'))
     print("Code ran in " + str(end) + " seconds")
 
@@ -215,7 +216,7 @@ try:
     end = round(time.perf_counter() - start, 4)
 
     dict = getResult("tlsh", "ms", labelList, res.labels_)
-    df = df.append(dict, ignore_index=True)
+    df = pd.concat((df, pd.DataFrame([dict])), ignore_index=True)
     print(dict.get('Cluster'))
     print("Code ran in " + str(end) + " seconds")
 
@@ -232,7 +233,7 @@ try:
     end = round(time.perf_counter() - start, 4)
 
     dict = getResult("tlsh", "sp", labelList, res.labels_)
-    df = df.append(dict, ignore_index=True)
+    df = pd.concat((df, pd.DataFrame([dict])), ignore_index=True)
     print(dict.get('Cluster'))
     print("Code ran in " + str(end) + " seconds")
 
@@ -249,7 +250,7 @@ try:
     end = round(time.perf_counter() - start, 4)
 
     dict = getResult("tlsh", "OPTICS", labelList, res.labels_)
-    df = df.append(dict, ignore_index=True)
+    df = pd.concat((df, pd.DataFrame([dict])), ignore_index=True)
     print(dict.get('Cluster'))
     print("Code ran in " + str(end) + " seconds")
 
@@ -266,7 +267,7 @@ try:
     end = round(time.perf_counter() - start, 4)
 
     dict = getResult("tlsh", "BIRCH", labelList, res.labels_)
-    df = df.append(dict, ignore_index=True)
+    df = pd.concat((df, pd.DataFrame([dict])), ignore_index=True)
     print(dict.get('Cluster'))
     print("Code ran in " + str(end) + " seconds")
 

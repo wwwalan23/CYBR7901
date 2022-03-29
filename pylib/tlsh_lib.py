@@ -13,7 +13,6 @@
 #################################################################
 
 import tlsh
-import ssdeep
 import numpy as np
 
 from pylib.printCluster import *

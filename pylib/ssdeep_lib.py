@@ -408,7 +408,7 @@ def runOPTICS(hashList,min_samples):
 
 def runBIRCH(hashList,n_clusters):
 	data = slist2cdata(hashList)
-	cluster = Birch(n_clusters=n_clusters,metric=simSsdeep)
+	cluster = Birch(n_clusters=n_clusters)
 	res = cluster.fit(data)
 	return(res)
 
