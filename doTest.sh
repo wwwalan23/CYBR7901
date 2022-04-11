@@ -1,23 +1,19 @@
 #!/bin/sh
 
-echo "python CYBR_Tlsh_can't_scale.py -f dataDir/mb_70K.csv"
-      python CYBR_Tlsh_can't_scale.py -f dataDir/mb_70K.csv
+echo "python CYBR_Tlsh_cant_scale.py -f dataDir/mb_70K.csv"
+      python CYBR_Tlsh_cant_scale.py -f dataDir/mb_70K.csv
 echo
 
-echo "python CYBR_Tlsh_can't_scale.py -f dataDir/mb_60K.csv"
-      python CYBR_Tlsh_can't_scale.py -f dataDir/mb_60K.csv
+echo "python CYBR_Tlsh_cant_scale.py -f dataDir/mb_60K.csv"
+      python CYBR_Tlsh_cant_scale.py -f dataDir/mb_60K.csv
 echo
 
-echo "python CYBR_Tlsh_can't_scale.py -f dataDir/mb_50K.csv"
-      python CYBR_Tlsh_can't_scale.py -f dataDir/mb_50K.csv
+echo "python CYBR_Tlsh_cant_scale.py -f dataDir/mb_50K.csv"
+      python CYBR_Tlsh_cant_scale.py -f dataDir/mb_50K.csv
 echo
 
-echo "python CYBR_Tlsh_can't_scale.py -f dataDir/mb_40K.csv"
-      python CYBR_Tlsh_can't_scale.py -f dataDir/mb_40K.csv
-echo
-
-echo "python CYBR_Tlsh_can't_cluster.py -f dataDir/mb_100K.csv"
-      python CYBR_Tlsh_can't_cluster.py -f dataDir/mb_100K.csv
+echo "python CYBR_Tlsh_cant_scale.py -f dataDir/mb_40K.csv"
+      python CYBR_Tlsh_cant_scale.py -f dataDir/mb_40K.csv
 echo
 
 echo "python CYBR_Tlsh_good.py -f dataDir/mb_390K.csv"
