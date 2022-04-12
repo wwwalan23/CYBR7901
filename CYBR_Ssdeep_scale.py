@@ -158,7 +158,7 @@ for i in n:
     # KMeans int(max(clusterNumber))
     try:
         start = time.perf_counter()
-        res = runKMean(hashList, n_clusters=nlabel)
+        res = runKMean(hashList, n_clusters=i)
         end = round(time.perf_counter() - start, 4)
 
         dict = getResult("ssdeep", "kmeans", labelList, res.labels_)
@@ -175,7 +175,7 @@ for i in n:
     # BIRCH
     try:
         start = time.perf_counter()
-        res = runBIRCH(hashList, n_clusters=nlabel)
+        res = runBIRCH(hashList, n_clusters=i)
         end = round(time.perf_counter() - start, 4)
 
         dict = getResult("ssdeep", "birch", labelList, res.labels_)
