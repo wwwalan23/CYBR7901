@@ -97,7 +97,7 @@ df = pd.DataFrame()
 hashList = slist
 print("Number of samples is " + str(len(hashList)))
 print("Number of Unique Label is " + str(len(set(labelList))))
-print("Example hash" + str(hashList[0]))
+print("Example hash: " + str(hashList[0]))
 nlabel = len(set(labelList))
 haveNan = containNan(labelList)
 

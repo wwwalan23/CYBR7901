@@ -13,8 +13,8 @@ warnings.filterwarnings("ignore")
 ###################################################
 # List of Function
 def containNan(labelList):
-    for lable in labelList:
-        if lable == 'n/a':
+    for label in labelList:
+        if label == 'n/a':
             haveNan = True
             return haveNan
 
@@ -24,9 +24,9 @@ def removeNan(hashlist, labelList):
     newhashlist = []
     newlabelList = []
 
-    for lable in labelList:
+    for label in labelList:
         count += 1
-        if lable != 'n/a':
+        if label != 'n/a':
             newhashlist.append(hashlist[count])
             newlabelList.append(labelList[count])
     return newhashlist, newlabelList
@@ -97,12 +97,11 @@ df = pd.DataFrame()
 hashList = tlist
 print("Number of samples is " + str(len(hashList)))
 print("Number of Unique Label is " + str(len(set(labelList))))
-print("Example hash" + hashList[0])
+print("Example hash: " + str(hashList[0]))
 nlabel = len(set(labelList))
 haveNan = containNan(labelList)
 
 ###################################################
-
 # Agglomerative Clustering
 try:
     start = time.perf_counter()
