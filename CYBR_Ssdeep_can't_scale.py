@@ -157,9 +157,6 @@ except Exception as e:
 
 ###################################################
 # Output
-outfile = path + "/output/" + filename + "_Ssdeep_result.csv"
-df.to_csv(outfile, index=False)
-
 toc = round(time.perf_counter() - tic, 4)
 print(df)
 print("All code ran in " + str(toc) + " seconds")
