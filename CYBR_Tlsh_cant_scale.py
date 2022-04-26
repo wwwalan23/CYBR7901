@@ -157,6 +157,9 @@ except Exception as e:
 
 ###################################################
 # Output
+outfile = path + "/output/" + filename + "_Tlsh_result_cs.csv"
+df.to_csv(outfile, index=False)
+
 toc = round(time.perf_counter() - tic, 4)
 print(df)
 print("All code ran in " + str(toc) + " seconds")
