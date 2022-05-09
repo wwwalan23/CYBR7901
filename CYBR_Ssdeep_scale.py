@@ -12,26 +12,6 @@ warnings.filterwarnings("ignore")
 
 ###################################################
 # List of Function
-def containNan(labelList):
-    for label in labelList:
-        if label == 'n/a':
-            haveNan = True
-            return haveNan
-
-
-def removeNan(hashlist, labelList):
-    count = -1
-    newhashlist = []
-    newlabelList = []
-
-    for label in labelList:
-        count += 1
-        if label != 'n/a':
-            newhashlist.append(hashlist[count])
-            newlabelList.append(labelList[count])
-    return newhashlist, newlabelList
-
-
 def getResult(hashType, clusterType, labelList, clusterNumber):
     d = {word: key for key, word in enumerate(set(labelList))}
     labelList_id = [d[word] for word in labelList]
@@ -50,11 +30,9 @@ def getResult(hashType, clusterType, labelList, clusterNumber):
     # print("Calinski harabasz score is " + str(cali))
     # print("Davies bouldin score is " + str(dav))
 
-    result = {"File": str(filename),
-              "nSample": int(len(tlist)),
+    result = {"nSample": int(len(tlist)),
               "Hash": str(hashType),
               "Cluster": str(clusterType),
-              "Has_n/a": bool(haveNan),
               "nLabel": int(nlabel),
               "nCluster": int(max(clusterNumber)),
               "Time(s)": float(end),
@@ -82,7 +60,6 @@ if (datafile == ""):
 ###################################################
 
 tic = time.perf_counter()  # experiment time counter
-haveNan = False
 df = pd.DataFrame()
 
 (path, file) = datafile.split("/")  # save file path
@@ -99,7 +76,6 @@ print("Number of samples is " + str(len(hashList)))
 print("Number of Unique Label is " + str(len(set(labelList))))
 print("Example hash: " + str(hashList[0]))
 nlabel = len(set(labelList))
-haveNan = containNan(labelList)
 n = [nlabel]
 
 ###################################################
@@ -123,8 +99,10 @@ try:
     print("nclusters is " + str(nclusters))
     print("nDistCalc is " + str(nDistCalc))
     n.append(nclusters)
+    
     # outfile = path + "/output/" + filename + "_hac-t_out.txt"
     # outputClusters(outfile, hashList, res, labelList, quiet=True)
+    
 except Exception as e:
     print("HAC-T didn't work.")
     print(e)
@@ -148,11 +126,14 @@ try:
     print("nclusters is " + str(nclusters))
     print("nDistCalc is " + str(nDistCalc))
     n.append(nclusters)
+
     # outfile = path + "/output/" + filename + "_dbscan_out.txt"
     # outputClusters(outfile, hashList, res.labels_, labelList, quiet=True)
+
 except Exception as e:
     print("DBSCAN didn't work.")
     print(e)
+
 ###################################################
 for i in n:
     # KMeans int(max(clusterNumber))
@@ -168,10 +149,13 @@ for i in n:
 
         # outfile = path + "/output/" + filename + "_kmean_out.txt"
         # outputClusters(outfile, hashList, res.labels_, labelList)
+
     except Exception as e:
         print("KMean didn't work.")
         print(e)
 
+###################################################
+for i in n:
     # BIRCH
     try:
         start = time.perf_counter()
@@ -183,8 +167,6 @@ for i in n:
         print(dict.get('Cluster'))
         print("Code ran in " + str(end) + " seconds")
 
-        # outfile = path + "/output/" + filename + "_birch_out.txt"
-        # outputClusters(outfile, hashList, res.labels_, labelList)
     except Exception as e:
         print("BIRCH didn't work.")
         print(e)

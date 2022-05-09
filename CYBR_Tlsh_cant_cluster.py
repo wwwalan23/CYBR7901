@@ -12,26 +12,6 @@ warnings.filterwarnings("ignore")
 
 ###################################################
 # List of Function
-def containNan(labelList):
-    for label in labelList:
-        if label == 'n/a':
-            haveNan = True
-            return haveNan
-
-
-def removeNan(hashlist, labelList):
-    count = -1
-    newhashlist = []
-    newlabelList = []
-
-    for label in labelList:
-        count += 1
-        if label != 'n/a':
-            newhashlist.append(hashlist[count])
-            newlabelList.append(labelList[count])
-    return newhashlist, newlabelList
-
-
 def getResult(hashType, clusterType, labelList, clusterNumber):
     d = {word: key for key, word in enumerate(set(labelList))}
     labelList_id = [d[word] for word in labelList]
@@ -50,11 +30,9 @@ def getResult(hashType, clusterType, labelList, clusterNumber):
     # print("Calinski harabasz score is " + str(cali))
     # print("Davies bouldin score is " + str(dav))
 
-    result = {"File": str(filename),
-              "nSample": int(len(tlist)),
+    result = {"nSample": int(len(tlist)),
               "Hash": str(hashType),
               "Cluster": str(clusterType),
-              "Has_n/a": bool(haveNan),
               "nLabel": int(nlabel),
               "nCluster": int(max(clusterNumber)),
               "Time(s)": float(end),
@@ -82,24 +60,19 @@ if (datafile == ""):
 ###################################################
 
 tic = time.perf_counter()  # experiment time counter
-haveNan = False
 df = pd.DataFrame()
 
 (path, file) = datafile.split("/")  # save file path
 (filename, filetype) = file.split(".")  # save file type
 
 (tlist, [labelList, dateList, slist]) = tlsh_csvfile(datafile)  # return (tlist, [labelList, dateList, hashList])
-# (tlist, labelList) = tlsh_csvfile(datafile)
-
-# remove Nan Value
-# (tlist, labelList) = removeNan(tlist, labelList)
 
 hashList = tlist
 print("Number of samples is " + str(len(hashList)))
 print("Number of Unique Label is " + str(len(set(labelList))))
 print("Example hash: " + str(hashList[0]))
 nlabel = len(set(labelList))
-haveNan = containNan(labelList)
+n = [nlabel]
 
 ###################################################
 # Mean Shift
@@ -113,8 +86,6 @@ try:
     print(dict.get('Cluster'))
     print("Code ran in " + str(end) + " seconds")
 
-    # outfile = path + "/output/" + filename + "_ms_out.txt"
-    # outputClusters(outfile, hashList, res.labels_, labelList)
 except Exception as e:
     print("Mean Shift didn't work.")
     print(e)
@@ -131,8 +102,6 @@ try:
     print(dict.get('Cluster'))
     print("Code ran in " + str(end) + " seconds")
 
-    # outfile = path + "/output/" + filename + "_optics_out.txt"
-    # outputClusters(outfile, hashList, res.labels_, labelList)
 except Exception as e:
     print("OPTICS didn't work.")
     print(e)
