@@ -13,23 +13,46 @@ warnings.filterwarnings("ignore")
 ###################################################
 # List of Function
 def getResult(hashType, clusterType, labelList, clusterNumber):
+    data = tlist2cdata(hashList)
+    
     d = {word: key for key, word in enumerate(set(labelList))}
     labelList_id = [d[word] for word in labelList]
-    a = np.array(labelList_id).reshape(-1, 1)
-
-    # decimal place
-    dp = 4
-
-    homo = round(metrics.homogeneity_score(labelList_id, clusterNumber), dp)
-    silh = round(metrics.silhouette_score(a, clusterNumber, metric='euclidean'), dp)
-    cali = round(metrics.calinski_harabasz_score(a, clusterNumber), dp)
-    dav = round(metrics.davies_bouldin_score(a, clusterNumber), dp)
-
-    # print("Homogeneity score is " + str(homo))
-    # print("Silhouette score is " + str(silh))
-    # print("Calinski harabasz score is " + str(cali))
-    # print("Davies bouldin score is " + str(dav))
-
+    #print("labelList_id=", labelList_id)
+    
+    outlierRemoveLabel = []
+    outlierRemoveID = []
+    outlierRemoveData = []
+    
+    for i in range(len(clusterNumber)):
+        if clusterNumber[i] >= 0:
+            outlierRemoveLabel.append(clusterNumber[i])
+            outlierRemoveID.append(labelList_id[i])
+            outlierRemoveData.append(data[i])
+            
+    #print("cluster labels=",clusterNumber)
+    #print("outlierRemoveLabel =", outlierRemoveLabel)
+    #print("outlierRemoveID =", outlierRemoveID)
+    
+    #print("Number of cluster labels=", len(clusterNumber))
+    #print("Number of outlierRemoveLabel =", len(outlierRemoveLabel))
+    
+    # Number of decimal place for score
+    dp = 4 
+    
+    homo = round(metrics.homogeneity_score(outlierRemoveID, outlierRemoveLabel), dp)
+    silh1 = round(metrics.silhouette_score(data, clusterNumber, metric=sim), dp)
+    silh2 = round(metrics.silhouette_score(outlierRemoveData, outlierRemoveLabel, metric=sim), dp)
+    cali = round(metrics.calinski_harabasz_score(outlierRemoveData, outlierRemoveLabel), dp)
+    dav = round(metrics.davies_bouldin_score(outlierRemoveData, outlierRemoveLabel), dp)
+    
+    print(clusterType + " ran in " + str(end) + " seconds")
+    print("Homogeneity score =",homo)
+    print("Silhouette score =",silh1)
+    print("Silhouette score with Outlier Remove =",silh2)
+    print("Calinski harabasz score =",cali)
+    print("Davies bouldin score =",dav)
+    print()
+    
     result = {"nSample": int(len(tlist)),
               "Hash": str(hashType),
               "Cluster": str(clusterType),
@@ -37,7 +60,7 @@ def getResult(hashType, clusterType, labelList, clusterNumber):
               "nCluster": int(max(clusterNumber)),
               "Time(s)": float(end),
               "Homo.": float(homo),
-              "Sil.": float(silh),
+              "Sil.": float(silh2),
               "Cal.": float(cali),
               "Dav.": float(dav)}
     return result
@@ -72,8 +95,95 @@ print("Number of samples is " + str(len(hashList)))
 print("Number of Unique Label is " + str(len(set(labelList))))
 print("Example hash: " + str(hashList[0]))
 nlabel = len(set(labelList))
-n = [nlabel]
+nClusters = [nlabel]
 
+###################################################
+# DBSCAN
+from pylib.hac_lib import *
+try:
+    resetDistCalc()
+
+    start = time.perf_counter()
+    res = runDBSCAN(hashList, eps=30, min_samples=2, algorithm='auto')
+    end = round(time.perf_counter() - start, 4)
+
+    dict = getResult("tlsh", "dbscan", labelList, res.labels_)
+    df = pd.concat((df, pd.DataFrame([dict])), ignore_index=True)
+
+    nclusters = max(res.labels_)
+    nDistCalc = lookupDistCalc()
+    #print("nclusters is " + str(nclusters))
+    #print("nDistCalc is " + str(nDistCalc))
+
+    nClusters.append(nclusters)
+
+    #outfile = path + "/output/" + filename + "_dbscan_out.txt"
+    #outputClusters(outfile, hashList, res.labels_, labelList, quiet=True)
+    
+except Exception as e:
+    print("DBSCAN didn't work.")
+    print(e)
+    
+###################################################
+# HAC-T
+from pylib.hac_lib import *
+try:
+    hac_resetDistCalc()
+
+    start = time.perf_counter()
+    res = HAC_T(datafile, CDist=30, step3=0, outfname="tmp.txt", cenfname="tmp2.txt")
+    end = round(time.perf_counter() - start, 4)
+
+    dict = getResult("tlsh", "hac-t", labelList, res)
+    df = pd.concat((df, pd.DataFrame([dict])), ignore_index=True)
+
+    nclusters = max(res)
+    nDistCalc = hac_lookupDistCalc()
+    #print("nclusters is " + str(nclusters))
+    #print("nDistCalc is " + str(nDistCalc))
+
+    nClusters.append(nclusters)
+
+    #outfile = path + "/output/" + filename + "_hac-t_out.txt"
+    #outputClusters(outfile, hashList, res, labelList, quiet=True)
+    
+except Exception as e:
+    print("HAC-T didn't work.")
+    print(e)
+    
+###################################################
+# KMeans
+for i in nClusters:
+    try:
+        start = time.perf_counter()
+        res = runKMean(hashList, n_clusters=i)
+        end = round(time.perf_counter() - start, 4)
+
+        dict = getResult("tlsh", "kmeans", labelList, res.labels_)
+        df = pd.concat((df, pd.DataFrame([dict])), ignore_index=True)
+
+        #outfile = path + "/output/" + filename + "_kmean_out.txt"
+        #outputClusters(outfile, hashList, res.labels_, labelList)
+        
+    except Exception as e:
+        print("KMeans didn't work.")
+        print(e)
+
+###################################################
+# BIRCH
+for i in nClusters:
+    try:
+        start = time.perf_counter()
+        res = runBIRCH(hashList, n_clusters=i)
+        end = round(time.perf_counter() - start, 4)
+
+        dict = getResult("tlsh", "birch", labelList, res.labels_)
+        df = pd.concat((df, pd.DataFrame([dict])), ignore_index=True)
+
+    except Exception as e:
+        print("BIRCH didn't work.")
+        print(e)
+        
 ###################################################
 # Affinity Propagation
 try:
@@ -83,8 +193,6 @@ try:
 
     dict = getResult("tlsh", "ap", labelList, res.labels_)
     df = pd.concat((df, pd.DataFrame([dict])), ignore_index=True)
-    print(dict.get('Cluster'))
-    print("Code ran in " + str(end) + " seconds")
 
 except Exception as e:
     print("Affinity Propagation didn't work.")
@@ -99,8 +207,6 @@ try:
 
     dict = getResult("tlsh", "ac", labelList, res.labels_)
     df = pd.concat((df, pd.DataFrame([dict])), ignore_index=True)
-    print(dict.get('Cluster'))
-    print("Code ran in " + str(end) + " seconds")
 
 except Exception as e:
     print("Agglomerative Clustering didn't work.")
@@ -115,8 +221,6 @@ try:
 
     dict = getResult("tlsh", "sp", labelList, res.labels_)
     df = pd.concat((df, pd.DataFrame([dict])), ignore_index=True)
-    print(dict.get('Cluster'))
-    print("Code ran in " + str(end) + " seconds")
 
 except Exception as e:
     print("Spectral Clustering didn't work.")
@@ -131,8 +235,6 @@ try:
 
     dict = getResult("tlsh", "ms", labelList, res.labels_)
     df = pd.concat((df, pd.DataFrame([dict])), ignore_index=True)
-    print(dict.get('Cluster'))
-    print("Code ran in " + str(end) + " seconds")
 
 except Exception as e:
     print("Mean Shift didn't work.")
@@ -147,108 +249,11 @@ try:
 
     dict = getResult("tlsh", "optics", labelList, res.labels_)
     df = pd.concat((df, pd.DataFrame([dict])), ignore_index=True)
-    print(dict.get('Cluster'))
-    print("Code ran in " + str(end) + " seconds")
 
 except Exception as e:
     print("OPTICS didn't work.")
     print(e)
-
-###################################################
-# HAC-T
-from pylib.hac_lib import *
-
-try:
-    hac_resetDistCalc()
-
-    start = time.perf_counter()
-    res = HAC_T(datafile, CDist=30, step3=0, outfname="tmp.txt", cenfname="tmp2.txt")
-    end = round(time.perf_counter() - start, 4)
-
-    dict = getResult("tlsh", "hac-t", labelList, res)
-    df = pd.concat((df, pd.DataFrame([dict])), ignore_index=True)
-    print(dict.get('Cluster'))
-    print("Code ran in " + str(end) + " seconds")
-
-    nclusters = max(res)
-    nDistCalc = hac_lookupDistCalc()
-    print("nclusters is " + str(nclusters))
-    print("nDistCalc is " + str(nDistCalc))
-    n.append(nclusters)
-
-    # outfile = path + "/output/" + filename + "_hac-t_out.txt"
-    # outputClusters(outfile, hashList, res, labelList, quiet=True)
-
-except Exception as e:
-    print("HAC-T didn't work.")
-    print(e)
-
-###################################################
-# DBSCAN
-from pylib.hac_lib import *
-
-try:
-    resetDistCalc()
-
-    start = time.perf_counter()
-    res = runDBSCAN(hashList, eps=30, min_samples=2, algorithm='auto')
-    end = round(time.perf_counter() - start, 4)
-
-    dict = getResult("tlsh", "dbscan", labelList, res.labels_)
-    df = pd.concat((df, pd.DataFrame([dict])), ignore_index=True)
-    print(dict.get('Cluster'))
-    print("Code ran in " + str(end) + " seconds")
-
-    nclusters = max(res.labels_)
-    nDistCalc = lookupDistCalc()
-    print("nclusters is " + str(nclusters))
-    print("nDistCalc is " + str(nDistCalc))
-    n.append(nclusters)
-
-    # outfile = path + "/output/" + filename + "_dbscan_out.txt"
-    # outputClusters(outfile, hashList, res.labels_, labelList, quiet=True)
-
-except Exception as e:
-    print("DBSCAN didn't work.")
-    print(e)
-
-###################################################
-for i in n:
-    # KMeans int(max(clusterNumber))
-    try:
-        start = time.perf_counter()
-        res = runKMean(hashList, n_clusters=i)
-        end = round(time.perf_counter() - start, 4)
-
-        dict = getResult("tlsh", "kmeans", labelList, res.labels_)
-        df = pd.concat((df, pd.DataFrame([dict])), ignore_index=True)
-        print(dict.get('Cluster'))
-        print("Code ran in " + str(end) + " seconds")
-
-        # outfile = path + "/output/" + filename + "_kmean_out.txt"
-        # outputClusters(outfile, hashList, res.labels_, labelList)
-
-    except Exception as e:
-        print("KMean didn't work.")
-        print(e)
-
-###################################################
-for i in n:
-    # BIRCH
-    try:
-        start = time.perf_counter()
-        res = runBIRCH(hashList, n_clusters=i)
-        end = round(time.perf_counter() - start, 4)
-
-        dict = getResult("tlsh", "birch", labelList, res.labels_)
-        df = pd.concat((df, pd.DataFrame([dict])), ignore_index=True)
-        print(dict.get('Cluster'))
-        print("Code ran in " + str(end) + " seconds")
-
-    except Exception as e:
-        print("birch didn't work.")
-        print(e)
-
+    
 ###################################################
 # Output
 outfile = path + "/output/" + filename + "_Tlsh_result.csv"
