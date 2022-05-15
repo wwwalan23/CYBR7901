@@ -29,6 +29,7 @@ def getResult(hashType, clusterType, labelList, clusterNumber):
             outlierRemoveID.append(labelList_id[i])
             outlierRemoveData.append(data[i])
             
+    #print("labelList_id=", labelList_id)
     #print("cluster labels=",clusterNumber)
     #print("outlierRemoveLabel =", outlierRemoveLabel)
     #print("outlierRemoveID =", outlierRemoveID)
@@ -51,6 +52,7 @@ def getResult(hashType, clusterType, labelList, clusterNumber):
     print("Silhouette score with Outlier Remove =",silh2)
     print("Calinski harabasz score =",cali)
     print("Davies bouldin score =",dav)
+    # print(metrics.silhouette_samples(outlierRemoveData, outlierRemoveLabel, metric=simSsdeep))
     print()
     
     result = {"nSample": int(len(tlist)),
@@ -98,6 +100,20 @@ nlabel = len(set(labelList))
 nClusters = [nlabel]
 
 ###################################################
+# Agglomerative Clustering
+try:
+    start = time.perf_counter()
+    res = assignCluster(hashList, nlabel)
+    end = round(time.perf_counter() - start, 4)
+
+    dict = getResult("ssdeep", "ac", labelList, res.labels_)
+    df = pd.concat((df, pd.DataFrame([dict])), ignore_index=True)
+
+except Exception as e:
+    print("Agglomerative Clustering didn't work.")
+    print(e)
+
+###################################################
 # DBSCAN
 try:
     resetDistCalc()
@@ -116,11 +132,26 @@ try:
 
     nClusters.append(nclusters)
 
-    #outfile = path + "/output/" + filename + "_dbscan_out.txt"
+    #outfile = path + "/output/" + filename + "_dbscan_out_ssdeep.txt"
     #outputClusters(outfile, hashList, res.labels_, labelList, quiet=True)
 except Exception as e:
     print("DBSCAN didn't work.")
     print(e)
+
+###################################################
+# OPTICS
+try:
+    start = time.perf_counter()
+    res = runOPTICS(hashList, min_samples=2)
+    end = round(time.perf_counter() - start, 4)
+
+    dict = getResult("ssdeep", "optics", labelList, res.labels_)
+    df = pd.concat((df, pd.DataFrame([dict])), ignore_index=True)
+
+except Exception as e:
+    print("OPTICS didn't work.")
+    print(e)
+
 ###################################################
 # KMeans
 for i in nClusters:
@@ -131,9 +162,6 @@ for i in nClusters:
 
         dict = getResult("ssdeep", "kmeans", labelList, res.labels_)
         df = pd.concat((df, pd.DataFrame([dict])), ignore_index=True)
-
-        #outfile = path + "/output/" + filename + "_kmean_out.txt"
-        #outputClusters(outfile, hashList, res.labels_, labelList)
         
     except Exception as e:
         print("KMeans didn't work.")
@@ -184,34 +212,6 @@ except Exception as e:
     print(e)
 
 ###################################################
-# Agglomerative Clustering
-try:
-    start = time.perf_counter()
-    res = assignCluster(hashList, nlabel)
-    end = round(time.perf_counter() - start, 4)
-
-    dict = getResult("ssdeep", "ac", labelList, res.labels_)
-    df = pd.concat((df, pd.DataFrame([dict])), ignore_index=True)
-
-except Exception as e:
-    print("Agglomerative Clustering didn't work.")
-    print(e)
-
-###################################################
-# Spectral Clustering
-try:
-    start = time.perf_counter()
-    res = runSpectral(hashList, n_clusters=nlabel)
-    end = round(time.perf_counter() - start, 4)
-
-    dict = getResult("ssdeep", "sp", labelList, res.labels_)
-    df = pd.concat((df, pd.DataFrame([dict])), ignore_index=True)
-
-except Exception as e:
-    print("Spectral Clustering didn't work.")
-    print(e)
-
-###################################################
 # Mean Shift
 try:
     start = time.perf_counter()
@@ -226,17 +226,17 @@ except Exception as e:
     print(e)
 
 ###################################################
-# OPTICS
+# Spectral Clustering
 try:
     start = time.perf_counter()
-    res = runOPTICS(hashList, min_samples=2)
+    res = runSpectral(hashList, n_clusters=nlabel)
     end = round(time.perf_counter() - start, 4)
 
-    dict = getResult("ssdeep", "optics", labelList, res.labels_)
+    dict = getResult("ssdeep", "sp", labelList, res.labels_)
     df = pd.concat((df, pd.DataFrame([dict])), ignore_index=True)
 
 except Exception as e:
-    print("OPTICS didn't work.")
+    print("Spectral Clustering didn't work.")
     print(e)
 
 ###################################################

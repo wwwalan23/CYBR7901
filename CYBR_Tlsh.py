@@ -28,7 +28,8 @@ def getResult(hashType, clusterType, labelList, clusterNumber):
             outlierRemoveLabel.append(clusterNumber[i])
             outlierRemoveID.append(labelList_id[i])
             outlierRemoveData.append(data[i])
-            
+
+    #print("labelList_id=", labelList_id)
     #print("cluster labels=",clusterNumber)
     #print("outlierRemoveLabel =", outlierRemoveLabel)
     #print("outlierRemoveID =", outlierRemoveID)

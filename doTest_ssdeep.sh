@@ -1,16 +1,20 @@
 #!/bin/sh
-
-echo "Can't Scale Cluster"
-echo "python CYBR_Ssdeep_cant_scale.py -f dataDir/mb_100.csv"
-      python CYBR_Ssdeep_cant_scale.py -f dataDir/mb_100.csv
+echo "python CYBR_Ssdeep.py -f dataDir/mb_10000.csv"
+      python CYBR_Ssdeep.py -f dataDir/mb_10000.csv
 echo
 
-echo "Can't Cluster"
-echo "python CYBR_Ssdeep_cant_cluster.py -f dataDir/mb_100.csv"
-      python CYBR_Ssdeep_cant_cluster.py -f dataDir/mb_100.csv
+echo "python CYBR_Ssdeep.py -f dataDir/mb_25000.csv"
+      python CYBR_Ssdeep.py -f dataDir/mb_25000.csv
 echo
 
-echo "Good Cluster"
-echo "python CYBR_Ssdeep_scale.py -f dataDir/mb_100.csv"
-      python CYBR_Ssdeep_scale.py -f dataDir/mb_100.csv
+echo "python CYBR_Ssdeep.py -f dataDir/mb_mb_100000.csv"
+      python CYBR_Ssdeep.py -f dataDir/mb_mb_100000.csv
+echo
+
+echo "python CYBR_Ssdeep.py -f dataDir/mb_200000.csv"
+      python CYBR_Ssdeep.py -f dataDir/mb_200000.csv
+echo
+
+echo "python CYBR_Ssdeep.py -f dataDir/mb_323425.csv"
+      python CYBR_Ssdeep.py -f dataDir/mb_323425.csv
 echo
