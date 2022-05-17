@@ -64,10 +64,7 @@ def simSsdeep(idx1, idx2):
 	#print("idx2=", idx2)
 	h1 = sptr[int(idx1[0])]
 	h2 = sptr[int(idx2[0])]
-	#print("h1=" + h1)
-	#print("h2=" + h2)
 	dist = 100.0 - ssdeep.compare(h1, h2) # distance is the difference
-	#print(dist)
 	return dist
 
 def tlist2cdata(tlist):

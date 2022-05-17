@@ -13,7 +13,7 @@ warnings.filterwarnings("ignore")
 ###################################################
 # List of Function
 def getResult(hashType, clusterType, labelList, clusterNumber):
-    data = tlist2cdata(hashList)
+    data = slist2cdata(hashList)
     
     d = {word: key for key, word in enumerate(set(labelList))}
     labelList_id = [d[word] for word in labelList]
@@ -42,16 +42,16 @@ def getResult(hashType, clusterType, labelList, clusterNumber):
     
     homo = round(metrics.homogeneity_score(outlierRemoveID, outlierRemoveLabel), dp)
     silh1 = round(metrics.silhouette_score(data, clusterNumber, metric=simSsdeep), dp)
-    silh2 = round(metrics.silhouette_score(outlierRemoveData, outlierRemoveLabel, metric=sim), dp)
-    cali = round(metrics.calinski_harabasz_score(outlierRemoveData, outlierRemoveLabel), dp)
-    dav = round(metrics.davies_bouldin_score(outlierRemoveData, outlierRemoveLabel), dp)
+    silh2 = round(metrics.silhouette_score(outlierRemoveData, outlierRemoveLabel, metric=simSsdeep), dp)
+    #cali = round(metrics.calinski_harabasz_score(outlierRemoveData, outlierRemoveLabel), dp)
+    #dav = round(metrics.davies_bouldin_score(outlierRemoveData, outlierRemoveLabel), dp)
     
     print(clusterType + " ran in " + str(end) + " seconds")
     print("Homogeneity score =",homo)
     print("Silhouette score =",silh1)
     print("Silhouette score with Outlier Remove =",silh2)
-    print("Calinski harabasz score =",cali)
-    print("Davies bouldin score =",dav)
+    #print("Calinski harabasz score =",cali)
+    #print("Davies bouldin score =",dav)
     # print(metrics.silhouette_samples(outlierRemoveData, outlierRemoveLabel, metric=simSsdeep))
     print()
     
@@ -62,9 +62,10 @@ def getResult(hashType, clusterType, labelList, clusterNumber):
               "nCluster": int(max(clusterNumber)),
               "Time(s)": float(end),
               "Homo.": float(homo),
-              "Sil.": float(silh2),
-              "Cal.": float(cali),
-              "Dav.": float(dav)}
+              "Sil.": float(silh2)
+              #"Cal.": float(cali),
+              #"Dav.": float(dav)
+              }
     return result
 
 
@@ -151,7 +152,7 @@ try:
 except Exception as e:
     print("OPTICS didn't work.")
     print(e)
-
+"""
 ###################################################
 # KMeans
 for i in nClusters:
@@ -165,21 +166,6 @@ for i in nClusters:
         
     except Exception as e:
         print("KMeans didn't work.")
-        print(e)
-        
-###################################################
-# BIRCH
-for i in nClusters:
-    try:
-        start = time.perf_counter()
-        res = runBIRCH(hashList, n_clusters=i)
-        end = round(time.perf_counter() - start, 4)
-
-        dict = getResult("ssdeep", "birch", labelList, res.labels_)
-        df = pd.concat((df, pd.DataFrame([dict])), ignore_index=True)
-
-    except Exception as e:
-        print("BIRCH didn't work.")
         print(e)
         
 ###################################################
@@ -238,7 +224,7 @@ try:
 except Exception as e:
     print("Spectral Clustering didn't work.")
     print(e)
-
+"""
 ###################################################
 # Output
 outfile = path + "/output/" + filename + "_Ssdeep_result.csv"
