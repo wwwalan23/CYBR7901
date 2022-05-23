@@ -3,18 +3,18 @@ echo "python CYBR_Ssdeep.py -f dataDir/mb_10000.csv"
       python CYBR_Ssdeep.py -f dataDir/mb_10000.csv
 echo
 
-echo "python CYBR_Ssdeep.py -f dataDir/mb_25000.csv"
-      python CYBR_Ssdeep.py -f dataDir/mb_25000.csv
+echo "python CYBR_Ssdeep.py -f dataDir/mb_20000.csv"
+      python CYBR_Ssdeep.py -f dataDir/mb_20000.csv
 echo
 
-echo "python CYBR_Ssdeep.py -f dataDir/mb_100000.csv"
-      python CYBR_Ssdeep.py -f dataDir/mb_100000.csv
+echo "python CYBR_Ssdeep.py -f dataDir/mb_30000.csv"
+      python CYBR_Ssdeep.py -f dataDir/mb_30000.csv
 echo
 
-echo "python CYBR_Ssdeep.py -f dataDir/mb_200000.csv"
-      python CYBR_Ssdeep.py -f dataDir/mb_200000.csv
+echo "python CYBR_Ssdeep.py -f dataDir/mb_40000.csv"
+      python CYBR_Ssdeep.py -f dataDir/mb_40000.csv
 echo
 
-echo "python CYBR_Ssdeep.py -f dataDir/mb_323425.csv"
-      python CYBR_Ssdeep.py -f dataDir/mb_323425.csv
+echo "python CYBR_Ssdeep.py -f dataDir/mb_50000.csv"
+      python CYBR_Ssdeep.py -f dataDir/mb_50000.csv
 echo

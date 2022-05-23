@@ -14,57 +14,59 @@ warnings.filterwarnings("ignore")
 # List of Function
 def getResult(hashType, clusterType, labelList, clusterNumber):
     data = slist2cdata(hashList)
-    
+
     d = {word: key for key, word in enumerate(set(labelList))}
     labelList_id = [d[word] for word in labelList]
     #print("labelList_id=", labelList_id)
-    
+
     outlierRemoveLabel = []
     outlierRemoveID = []
     outlierRemoveData = []
-    
+
+    # Number of decimal place for score
+    dp = 4
+
     for i in range(len(clusterNumber)):
         if clusterNumber[i] >= 0:
             outlierRemoveLabel.append(clusterNumber[i])
             outlierRemoveID.append(labelList_id[i])
             outlierRemoveData.append(data[i])
-            
-    #print("labelList_id=", labelList_id)
-    #print("cluster labels=",clusterNumber)
-    #print("outlierRemoveLabel =", outlierRemoveLabel)
-    #print("outlierRemoveID =", outlierRemoveID)
-    
-    #print("Number of cluster labels=", len(clusterNumber))
-    #print("Number of outlierRemoveLabel =", len(outlierRemoveLabel))
-    
-    # Number of decimal place for score
-    dp = 4 
-    
+
+    # print("labelList_id=", labelList_id)
+    # print("cluster labels=",clusterNumber)
+    # print("outlierRemoveLabel =", outlierRemoveLabel)
+    # print("outlierRemoveData =", outlierRemoveData)
+
     homo = round(metrics.homogeneity_score(outlierRemoveID, outlierRemoveLabel), dp)
-    silh1 = round(metrics.silhouette_score(data, clusterNumber, metric=simSsdeep), dp)
-    silh2 = round(metrics.silhouette_score(outlierRemoveData, outlierRemoveLabel, metric=simSsdeep), dp)
-    #cali = round(metrics.calinski_harabasz_score(outlierRemoveData, outlierRemoveLabel), dp)
-    #dav = round(metrics.davies_bouldin_score(outlierRemoveData, outlierRemoveLabel), dp)
-    
+    silh1 = round(metrics.silhouette_score(data, clusterNumber, metric=sim), dp)
+    silh2 = round(metrics.silhouette_score(outlierRemoveData, outlierRemoveLabel, metric=sim), dp)
+    # cali = round(metrics.calinski_harabasz_score(outlierRemoveData, outlierRemoveLabel), dp)
+    # dav = round(metrics.davies_bouldin_score(outlierRemoveData, outlierRemoveLabel), dp)
+
+    coverage = len(outlierRemoveLabel) * 100 / len(clusterNumber)
+    coverage = round(coverage, dp)
+
     print(clusterType + " ran in " + str(end) + " seconds")
-    print("Homogeneity score =",homo)
-    print("Silhouette score =",silh1)
-    print("Silhouette score with Outlier Remove =",silh2)
-    #print("Calinski harabasz score =",cali)
-    #print("Davies bouldin score =",dav)
-    # print(metrics.silhouette_samples(outlierRemoveData, outlierRemoveLabel, metric=simSsdeep))
+    print("Homogeneity score =", homo)
+    print("Silhouette score =", silh1)
+    print("Silhouette score with Outlier Remove =", silh2)
+    # print("Calinski harabasz score =",cali)
+    # print("Davies bouldin score =",dav)
+    # print(metrics.silhouette_samples(outlierRemoveData, outlierRemoveLabel, metric=sim))
+    print("% of coverage =", coverage)
     print()
-    
+
     result = {"nSample": int(len(tlist)),
               "Hash": str(hashType),
               "Cluster": str(clusterType),
               "nLabel": int(nlabel),
               "nCluster": int(max(clusterNumber)),
               "Time(s)": float(end),
-              "Homo.": float(homo),
-              "Sil.": float(silh2)
-              #"Cal.": float(cali),
-              #"Dav.": float(dav)
+              "Homogeneity": float(homo),
+              "Silhouette": float(silh2),
+              # "Cal.": float(cali),
+              # "Dav.": float(dav),
+              "Coverage(%)": float(coverage)
               }
     return result
 

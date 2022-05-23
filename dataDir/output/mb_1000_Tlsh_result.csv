@@ -1,5 +1,5 @@
-nSample,Hash,Cluster,nLabel,nCluster,Time(s),Homogeneity,Silhouette
-1000,tlsh,ac,63,62,0.8311,0.5708,0.3126
-1000,tlsh,dbscan,63,57,3.4483,0.7968,0.731
-1000,tlsh,hac-t,63,75,0.7527,0.8542,0.5195
-1000,tlsh,optics,63,197,6.9964,0.8776,0.4754
+nSample,Hash,Cluster,nLabel,nCluster,Time(s),Homogeneity,Silhouette,Coverage(%)
+1000,tlsh,ac,63,62,2.0144,0.5708,0.3126,100.0
+1000,tlsh,dbscan,63,57,4.101,0.7968,0.731,40.9
+1000,tlsh,hac-t,63,75,0.8246,0.8542,0.5195,40.3
+1000,tlsh,optics,63,197,7.0606,0.8776,0.4754,62.2

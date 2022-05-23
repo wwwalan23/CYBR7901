@@ -1,0 +1,5 @@
+nSample,Hash,Cluster,nLabel,nCluster,Time(s),Homogeneity,Silhouette
+25000,tlsh,ac,239,238,267.7342,0.4308,0.1577
+25000,tlsh,dbscan,239,1623,425.5904,0.8017,0.5666
+25000,tlsh,hac-t,239,2166,31.8061,0.8547,0.5859
+25000,tlsh,optics,239,4444,695.648,0.9129,0.5131
