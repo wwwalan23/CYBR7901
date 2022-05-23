@@ -38,8 +38,8 @@ def getResult(hashType, clusterType, labelList, clusterNumber):
     # print("outlierRemoveData =", outlierRemoveData)
 
     homo = round(metrics.homogeneity_score(outlierRemoveID, outlierRemoveLabel), dp)
-    silh1 = round(metrics.silhouette_score(data, clusterNumber, metric=sim), dp)
-    silh2 = round(metrics.silhouette_score(outlierRemoveData, outlierRemoveLabel, metric=sim), dp)
+    silh1 = round(metrics.silhouette_score(data, clusterNumber, metric=simSsdeep), dp)
+    silh2 = round(metrics.silhouette_score(outlierRemoveData, outlierRemoveLabel, metric=simSsdeep), dp)
     # cali = round(metrics.calinski_harabasz_score(outlierRemoveData, outlierRemoveLabel), dp)
     # dav = round(metrics.davies_bouldin_score(outlierRemoveData, outlierRemoveLabel), dp)
 
@@ -52,7 +52,7 @@ def getResult(hashType, clusterType, labelList, clusterNumber):
     print("Silhouette score with Outlier Remove =", silh2)
     # print("Calinski harabasz score =",cali)
     # print("Davies bouldin score =",dav)
-    # print(metrics.silhouette_samples(outlierRemoveData, outlierRemoveLabel, metric=sim))
+    # print(metrics.silhouette_samples(outlierRemoveData, outlierRemoveLabel, metric=simSsdeep))
     print("% of coverage =", coverage)
     print()
 
